@@ -202,23 +202,34 @@ the following:
 	          | {'node', Left::tree(), Value::any(), Right::tree()}.
 ```
 			  
-Wait..Is that?! NO... Oh no.. 
+Wait..Is that?! Oh no.. 
 
 Yes, that's right everyone!! Dialyzer and LFE support algebraic data
-types!!
+types!! Happy days !
 
-How does with work in LFE? Easy:
+How does with work in LFE? Simply provide another definition to the
+list for that data type:
 ```lisp
-(type-of tree '(#{'|node| 'nil}
+(type-of tree '('nil
                 #{'|node| (:: Left tree) (:: Value any) (:: Right tree)}))
 ```
-Gee that was easy...
-
-For our Haskell friends that would be the same as:
+Now we have a `tree` data type that is either an empty tree or a node
+with potentially two children. Gee that was easy...For our Haskell
+friends that would be the same as:
 ```haskell
 data Tree = Empty
           | Node Tree a Tree
 ```
+Yeah, yeah, it's terse and doesn't have all the _scary_
+parentheses.. Our subtrees are __named__ so NYERR!... So if we wanted
+to we could even specify a `Maybe` type of our very own:
+```lisp
+(type-of maybe ('nil
+                #{'|just| 'any}))
+```
+Okay I'll stop now...moving on!
+
+
 
 
 ### Function Types
