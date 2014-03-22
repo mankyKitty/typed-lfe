@@ -94,13 +94,10 @@ There is also a way to indicate that a _specific_ atom is part of a definition o
 '|specific atom|
 ```
 You simply wrap the atom in pipes `|` after the quote symbol. So a binary tree node _type_ could be defined as:
-
 ```erlang
 #{'|node| 'any 'any 'any}
 ```
-
 ... corresponding to:
-
 ```erlang
 #{node LeftTree Value RightTree}
 ```
@@ -143,7 +140,87 @@ Erlang, so lets have a look at how they are using in LFE.
 | `node()` | `'node` | An Erlang node name, which is an atom. |
 | `no_return()` | `'no_return` | Alias of `'nil`, intended to be used in the return type of functions. It is primarily designed for annotating functions that loop (hopefully) forever, thus never returning. |
 
-That's a lot of types! But how do we actually __USE__ them?! Recall our quick and nasty binary tree definition from earlier `#{'|node| 'any 'any 'any}`
+That's a lot of types! But how do we actually __USE__ them?! Recall our quick and nasty binary tree definition from earlier `#{'|node| 'any 'any 'any}`. Now that we have some more information and saucy types, lets declare an actual type definition in our module!
+
+The syntax for a module level type definition in Erlang is:
+```erlang
+-type TypeName() :: TypeDefinition.
+```
+So to define our tree type we simply layout our types into the required structure:
+```erlang
+-type tree() :: {'node', tree(), any(), tree()}.
+```
+
+Before we go too much further though, lets how we do this in LFE:
+```lisp
+(type-of typename (typedefinition))
+```
+Therefore:
+```lisp
+(type-of tree '(#{'|node| tree 'any tree}))
+```
+When it's a simple definition such as this you may omit including the
+definition in a list, which simplifies it to:
+```lisp
+(type-of tree #{'|node| tree 'any tree})
+```
+
+But just looking at the type definition there isn't way to determine
+which of the `tree` types in the tuple refer to the _left_ or _right_
+subtrees. There is a special syntax for type definitions that let us
+provide named comments for the types. Greatly increasing the knowledge
+that can be gained by simply looking at the type definitions.
+
+Like so, in Erlang:
+```erlang
+-type tree() :: {'node', Left::tree(), Value::any(), Right::tree()}.
+```
+And thus for LFE:
+```lisp
+;; This lets you annotate the types that matter
+(type-of tree #{'|node| (:: Left tree) (:: Value 'any) (:: Right tree)})
+;; This feels like it's verging on a lot of ceremony, but to me it looks really clear.
+```
+or
+```lisp
+;; This could just be shorthand for the above, would be consistent if
+;; we support (: erlang foo) and (erlang:foo) for function calls. ??
+(type-of tree #{'|node| Left::tree Value::any Right::tree})
+```
+
+That definition alone won't work because it doesn't allow for our
+`tree` to be empty. How do we deal with this without making our types
+and our code unreadable?
+
+We can see from the above definition that Dialyzer and LFE support
+recursive type definitions! (_insert happy dance here_) We're about to
+see the next piece of magic that Dialyzer has in store for us, those
+of us joining from the world of Haskell should immediately recognise
+the following:
+```erlang
+-type tree() :: {'node', 'nil'}
+	          | {'node', Left::tree(), Value::any(), Right::tree()}.
+```
+			  
+Wait..Is that?! NO... Oh no.. 
+
+Yes, that's right everyone!! Dialyzer and LFE support algebraic data
+types!!
+
+How does with work in LFE? Easy:
+```lisp
+(type-of tree '(#{'|node| 'nil}
+                #{'|node| (:: Left tree) (:: Value any) (:: Right tree)}))
+```
+Gee that was easy...
+
+For our Haskell friends that would be the same as:
+```haskell
+data Tree = Empty
+          | Node Tree a Tree
+```
+
+
 ### Function Types
 #### Examples
 ### Exporting Types
