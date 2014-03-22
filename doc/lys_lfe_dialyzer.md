@@ -56,10 +56,10 @@ itself. For example:
 #B or (binary)	| An empty binary
 ```
 
-Below is a table of some Erlang types, and their LFE
+Below is a table of the built-in Erlang types, and their LFE
 counterparts. Note that somethings become reserved words inside of a
 type definition because of the availability of specific types, such as
-process ids, ports, or references.
+process ids, ports, or references. 
 
 | Erlang Term | LFE Term | Description |
 |-------------|----------|-------------|
@@ -87,8 +87,45 @@ process ids, ports, or references.
 | `[Type]` | `#(Type)` or `(list Type)` | A list containing a given type. This is a polymorphic type that expects a inner type, `#('int)`, for example. |
 | `[Type, ...]` | `#(Type ...)` | A special list type that means the list cannot be empty. |
 | `tuple()` | `#{}` or `(tuple)` | Any tuple. |
-| `{Type1, Type2}` | `#{Type1, Type2}` or `(tuple Type1 Type2)` | A tuple of known size with known types. A binary tree node could be defined as `#{'atom, 'any, 'any, 'any}` corresponding to `#{node, LeftTree, Value, RightTree}`. |
+| `{Type1, Type2}` | `#{Type1 Type2}` or `(tuple Type1 Type2)` | A tuple of known size with known types. A binary tree node could be defined as `#{'atom, 'any, 'any, 'any}` corresponding to `#{node, LeftTree, Value, RightTree}`. |
 
+Phew, geez that's a lot of types. But you might be able to see how you
+can effectively structure the types of your various LFE definitions
+and specifications. But sometimes things might be too specific, or too
+vague for your needs. This is where the construction of _union_ types
+comes into play.
+
+Union types in Erlang, using the `|` operator, allow us to create our
+own types that are combinations of different types. So `TypeName` is
+represented by `Type1 | Type2 | ... | TypeN`. To use examples directly
+from LYSE:
+
+>As such, the number() type, which includes integers and floating
+>point values, could be represented as integer() | float(). A boolean
+>value could be defined as 'true' | 'false'. It is also possible to
+>define types where only one other type is used. Although it looks
+>like a union type, it is in fact an alias.
+
+Because Erlang and Dialyzer are so nice to us, there is a stack of
+these _union_ types already defined for us! But we're not using
+Erlang, so lets have a look at how they are using in LFE.
+
+| Erlang Term | LFE Term | Description |
+|-------------|----------|-------------|
+| `term()` | `'term` | Equivalent to `any()` and because other tools use `term()` in their code. Alternatively you can use the `_` as an alias of `'term` or `'any`. |
+| `boolean()` | `'bool` or `'boolean` | Equivalent to the `true` or `false` atoms. |
+| `byte()` | `'byte` | Defined as `0..255`, it's any valid byte in existence. |
+| `char()` | `'char` | Defined as `0..16#10ffff`, but it's not clear whether this type refers to specific standards for characters or not. Reallllly general so as to avoid conflicts. |
+| `number()` | `'num` or `'number` | `integer()` or `float()` |
+| `maybe_improper_list()` | `#(improper)` or `#(maybe_improper)` | This is an alias for `maybe_improper_list(any(), any())` for improper lists in general. |
+| `maybe_improper_list(Type)` | `#(improper Type)` or `#(maybe_improper Type)` | Where `Type` is any given type. Is an alias for `maybe_improper_list(Type, any())`. |
+| `string()` | `'string` or `'str` | Defined as `[char()]`, a list of characters. |
+| `nonempty_string()` | `'nonempty_string` or `'nonempty_str` | As above, except the list cannot be empty. Defined as `[char(), ...]`. |
+| `iolist()` | `'iolist` | Funnily enough, this is the `iolist` type! |
+| `module()` | `'module` | Alias of atom, but used for specifying the required type as a module name. |
+| `timeout()` | `'timeout` | Union of `'non_neg_int` and `'infinity`. |
+| `node()` | `'node` | An Erlang node name, which is an atom. |
+| `no_return()` | `'no_return` | Alias of `'none`, intended to be used in the return type of functions. It is primarily designed for annotating functions that loop (hopefully) forever, thus never returning. |
 
 
 #### Examples
