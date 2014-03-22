@@ -69,7 +69,7 @@ process ids, ports, or references.
 | `port()` | `'port` | A port is the representation of a file description, socket, et al. In the shell they appear as #Port<0.638> |
 | `reference()` | `'ref` | Unique values returned by (make_ref) or erlang:monitor/2 |
 | `atom()` | `'atom` | General atom type |
-| `'specific atom'` | `'|specific atom |'` | A specific atom singleton.|
+| `'specific atom'` | `'\|specific atom \|'` | A specific atom singleton.|
 | `binary()` | `#B` | General binary type |
 | `<<_:N>>` | `#B(size N)` | Binary of known size where `N` is the size |
 | `<<_:_*N>>` | `#B(_ (size N) *)` | Binary of `N` size but unspecified length |
@@ -78,7 +78,7 @@ process ids, ports, or references.
 | `N..M` | `(.. N M)` | A range of integers. From `N` to `M`, Dialyzer reserves the right to expand this range into a larger when. |
 | `non_neg_integer()` | `'non_neg_int` or `'non_neg_integer` | Integer that is greater or equal to 0 |
 | `pos_integer()` | `'pos_int` or `'pos_integer` | Integer greater than 0 |
-| `neg_integer()` | ``neg_int` or `'neg_integer` | Integers up to and including `-1` |
+| `neg_integer()` | `'neg_int` or `'neg_integer` | Integers up to and including `-1` |
 | `float()` | `'float` | Any floating point number. |
 | `fun()` | `(fun)` | Any kind of function. |
 | `fun((...) -> Type)` | `(fun (..) Type)` | An anonymous function of any arity that returns `Type`. `(fun (..) 'int)`, for example. |
