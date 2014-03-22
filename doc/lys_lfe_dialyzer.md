@@ -29,4 +29,6 @@ and of course the
 [`man` page](http://www.erlang.org/doc/man/dialyzer.html).
 
 Building the PLT the first time:
-	$ dialyzer --build_plt --apps erts kernel stdlib crypto mnesia
+```
+$ dialyzer --build_plt --apps erts kernel stdlib crypto mnesia sasl
+```
