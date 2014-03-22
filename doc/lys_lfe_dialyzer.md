@@ -32,3 +32,48 @@ Building the PLT the first time:
 ```
 $ dialyzer --build_plt --apps erts kernel stdlib crypto mnesia sasl
 ```
+
+Throughout this guide we will begin with demonstrating what the
+'un-typed' version of the code will look like. Then we enhance with
+types to demonstrate their use in various situations.
+
+> Should I briefly cover some Dialyzer details like type inference and
+> discrepencies and how the sucess typing system works here? Or just
+> completely defer to the LYSE/dialyzer page? I feel like I should
+> cover it at least briefly so we know what to avoid in our LFE types
+> as well. Because they'll look different... 
+
+### Types of Types
+
+The type system for LFE supports the Erlang _union_ and _built-in_
+types. With _singleton_ types as well that simply refer to the value
+itself. For example:
+```
+'|some atom|	| Any atom can be its own singleton type
+42				| A given integer
+#() or (list)	| An empty list
+#{} or (tuple)	| An empty tuple
+#B or (binary)	| An empty binary
+```
+
+Below is a table of some Erlang types, and their LFE
+counterparts. Note that somethings become reserved words inside of a
+type definition because of the availability of specific types, such as
+process ids, ports, or references.
+
+| Erlang Term | LFE Term | Description |
+|-------------|----------|-------------|
+| `any()` | `'any` | Any Erlang term |
+| `none()` | `'none` | Special Dialyzer term for deliberately breaking things.| 
+| `pid()` | `'pid` | A process identifier |
+| `port()` | `'port` | A port is the representation of a file description, socket, et al. In the shell they appear as #Port<0.638> |
+| `reference()` | `'ref` | Unique values returned by (make_ref) or erlang:monitor/2 |
+| `atom()` | `'atom` | General atom type |
+| `binary()` | `#B` | General binary type |
+
+
+#### Examples
+### Function Types
+#### Examples
+### Exporting Types
+#### Examples
