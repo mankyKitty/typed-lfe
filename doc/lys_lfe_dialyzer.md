@@ -69,7 +69,6 @@ process ids, ports, or references.
 | `port()` | `'port` | A port is the representation of a file description, socket, et al. In the shell they appear as #Port<0.638> |
 | `reference()` | `'ref` | Unique values returned by (make_ref) or erlang:monitor/2 |
 | `atom()` | `'atom` | General atom type |
-| `'specific atom'` | `'\|specific atom \|'` | A specific atom singleton.|
 | `binary()` | `#B` | General binary type |
 | `<<_:N>>` | `#B(size N)` | Binary of known size where `N` is the size |
 | `<<_:_*N>>` | `#B(_ (size N) *)` | Binary of `N` size but unspecified length |
@@ -84,6 +83,11 @@ process ids, ports, or references.
 | `fun((...) -> Type)` | `(fun (..) Type)` | An anonymous function of any arity that returns `Type`. `(fun (..) 'int)`, for example. |
 | `fun(() -> Type)` | `(fun () Type)` | An anonymous function of 0 arity that returns `Type`. |
 | `fun((Type1,Type2) -> Type)` | `(fun (Type1 Type2) Type)` | An anonymous function of a specific arity that only accepts the types specified in the given order, and returns `Type`. `(fun ('int 'float) #('int))`, for example. |
+| `[]` | `#()` or `(list)`| An empty list. |
+| `[Type]` | `#(Type)` or `(list Type)` | A list containing a given type. This is a polymorphic type that expects a inner type, `#('int)`, for example. |
+| `[Type, ...]` | `#(Type ...)` | A special list type that means the list cannot be empty. |
+| `tuple()` | `#{}` or `(tuple)` | Any tuple. |
+| `{Type1, Type2}` | `#{Type1, Type2}` or `(tuple Type1 Type2)` | A tuple of known size with known types. A binary tree node could be defined as `#{'atom, 'any, 'any, 'any}` corresponding to `#{node, LeftTree, Value, RightTree}`. |
 
 
 
