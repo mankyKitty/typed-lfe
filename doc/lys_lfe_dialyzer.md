@@ -64,7 +64,7 @@ process ids, ports, or references.
 | Erlang Term | LFE Term | Description |
 |-------------|----------|-------------|
 | `any()` | `'any` | Any Erlang term |
-| `none()` | `'none` | Special Dialyzer term for deliberately breaking things.| 
+| `none()` | `'nil` or `'none` | Special Dialyzer term for when no term should match. According to LYSE it is "synonymous with _this stuff won't work_.". | 
 | `pid()` | `'pid` | A process identifier |
 | `port()` | `'port` | A port is the representation of a file description, socket, et al. In the shell they appear as #Port<0.638> |
 | `reference()` | `'ref` | Unique values returned by (make_ref) or erlang:monitor/2 |
@@ -87,7 +87,23 @@ process ids, ports, or references.
 | `[Type]` | `#(Type)` or `(list Type)` | A list containing a given type. This is a polymorphic type that expects a inner type, `#('int)`, for example. |
 | `[Type, ...]` | `#(Type ...)` | A special list type that means the list cannot be empty. |
 | `tuple()` | `#{}` or `(tuple)` | Any tuple. |
-| `{Type1, Type2}` | `#{Type1 Type2}` or `(tuple Type1 Type2)` | A tuple of known size with known types. A binary tree node could be defined as `#{'atom, 'any, 'any, 'any}` corresponding to `#{node, LeftTree, Value, RightTree}`. |
+| `{Type1, Type2}` | `#{Type1 Type2}` or `(tuple Type1 Type2)` | A tuple of known size with known types. |
+
+There is also a way to indicate that a _specific_ atom is part of a definition or specification. The syntax plays merry hell with the Markdown table syntax provided by Github so I'll just lay it out here:
+```lfe
+'|specific atom|
+```
+You simply wrap the atom in pipes `|` after the quote symbol. So a binary tree node _type_ could be defined as:
+
+```erlang
+#{'|node| 'any 'any 'any}
+```
+
+... corresponding to:
+
+```erlang
+#{node LeftTree Value RightTree}
+```
 
 Phew, geez that's a lot of types. But you might be able to see how you
 can effectively structure the types of your various LFE definitions
@@ -125,10 +141,9 @@ Erlang, so lets have a look at how they are using in LFE.
 | `module()` | `'module` | Alias of atom, but used for specifying the required type as a module name. |
 | `timeout()` | `'timeout` | Union of `'non_neg_int` and `'infinity`. |
 | `node()` | `'node` | An Erlang node name, which is an atom. |
-| `no_return()` | `'no_return` | Alias of `'none`, intended to be used in the return type of functions. It is primarily designed for annotating functions that loop (hopefully) forever, thus never returning. |
+| `no_return()` | `'no_return` | Alias of `'nil`, intended to be used in the return type of functions. It is primarily designed for annotating functions that loop (hopefully) forever, thus never returning. |
 
-
-#### Examples
+That's a lot of types! But how do we actually __USE__ them?! Recall our quick and nasty binary tree definition from earlier `#{'|node| 'any 'any 'any}`
 ### Function Types
 #### Examples
 ### Exporting Types
