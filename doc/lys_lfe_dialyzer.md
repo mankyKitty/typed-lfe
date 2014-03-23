@@ -159,8 +159,9 @@ So to define our tree type we simply layout our types into the required structur
 ```erlang
 -type tree() :: {'node', tree(), any(), tree()}.
 ```
+Note the support for recursive types!!
 
-Before we go too much further though, lets how we do this in LFE:
+Before we go too much further though, lets see how we do this in LFE:
 ```lisp
 (type-of typename (typedefinition))
 ```
@@ -197,9 +198,8 @@ or
 (type-of tree #{'|node| Left::tree Value::any Right::tree})
 ```
 
-That definition alone won't work because it doesn't allow for our
-`tree` to be empty. How do we deal with this without making our types
-and our code unreadable?
+That definition alone won't work, because it doesn't allow for our
+`tree` to be empty. How do we deal with this without making our types unreadable?
 
 We can see from the above definition that Dialyzer and LFE support
 recursive type definitions! (_insert happy dance here_) We're about to
@@ -229,9 +229,6 @@ friends that would be the same as:
 data Tree = Empty
           | Node Tree a Tree
 ```
-Yeah, yeah, it's terse and doesn't have all the _scary_
-parentheses.. Our subtrees are __named__ so NYERR!...
-
 If we wanted to we could even specify a `Maybe` type of our very own:
 ```lisp
 (type-of maybe ('nil
@@ -273,7 +270,8 @@ Now that we have an alias for our user record and we know what types we're using
                 (friends '() (:: #(user)))
                 (bio (:: (| 'string #B))))
 ```
-
+From the LYSE Dialyzer chapter:
+> You'll note that I defined types for all fields of the record, but some of them have no default value. If I were to create a user record instance as #user{age=5}, there would be no type error. All record field definitions have an implicit 'undefined' union added to them if no default value is provided for them. For earlier versions, the declaration would have caused type errors.
 
 ### Function Types
 #### Examples
