@@ -46,7 +46,7 @@ types to demonstrate their use in various situations.
 ### Types of Types
 
 The type system for LFE supports the Erlang _union_ and _built-in_
-types. With _singleton_ types as well that simply refer to the value
+types. With _singleton_ types as well, these simply refer to the value
 itself. For example:
 ```
 '|some atom|	| Any atom can be its own singleton type
@@ -286,8 +286,6 @@ we're using lets see how we do this in LFE:
                 (friends '() (:: #(user)))
                 (bio (:: (| 'string #B))))
 ```
-From the LYSE Dialyzer chapter:
-> You'll note that I defined types for all fields of the record, but some of them have no default value. If I were to create a user record instance as #user{age=5}, there would be no type error. All record field definitions have an implicit 'undefined' union added to them if no default value is provided for them. For earlier versions, the declaration would have caused type errors.
 
 ### Function Types
 #### Examples
