@@ -142,14 +142,18 @@ Erlang, so lets have a look at how they are using in LFE.
 
 Defining your own _union_ type in LFE is as easy as using the pipe operator `|` at the head of a list to create the _union_ type from the elements of that list. Like so:
 ```lisp
-;; This syntax is still to be decided upon as the pipe operator plays all sorts
-;; of hell with different parsers and Emacs modes and annoying things that probably
-;; won't make a lick of difference to simple it may be to implement. But making everything
-;; else work with the notation might not be worth the trouble... BUT YOU NEVER KNOW.
-(| 'int float)
+;; This syntax is still to be decided upon as the pipe operator plays
+;; all sorts of hell with different parsers and Emacs modes and
+;; annoying things that probably won't make a lick of difference to
+;; how simple it may be to implement. But making everything else work
+;; with the notation might not be worth the trouble... BUT YOU NEVER KNOW.
+(| 'int 'float)
 ```
 
-That's a lot of types! But how do we actually __USE__ them?! Recall our quick and nasty binary tree definition from earlier `#{'|node| 'any 'any 'any}`. Now that we have some more information and saucy types, lets declare an actual type definition in our module!
+That's a lot of types! But how do we actually __USE__ them?! Recall
+our quick and nasty binary tree definition from earlier `#{'|node|
+'any 'any 'any}`. Now that we have some more information and saucy
+types, lets declare an actual type definition in our module!
 
 The syntax for a module level type definition in Erlang is:
 ```erlang
@@ -236,7 +240,9 @@ If we wanted to we could even specify a `Maybe` type of our very own:
 ```
 Okay I'll stop now.
 
-Dialyzer also supports adding types to your records, these can be either any of the _built-in_ or _union_ types or ones that you've defined yourself.
+Dialyzer also supports adding types to your records, these can be
+either any of the _built-in_ or _union_ types or ones that you've
+defined yourself.
 
 The normal Erlang syntax is:
 ```erlang
@@ -246,9 +252,18 @@ The normal Erlang syntax is:
 	           friends=[] :: [#user{}]}
 			   bio :: string() | binary()).
 ```
-This record is quite straight forward and represents a user that has a name stored as a `string()`, we keep some notes in a `tree()` format because why not. Their `age` must be a `non_neg_integer()` and we even keep a list of `#user{}` records in a `list()` on this type. Their `bio` is kept as either a normal `string()` or in a `binary()` format for convenience.
+This record is quite straight forward and represents a user that has a
+name stored as a `string()`, we keep some notes in a `tree()` format
+because why not. Their `age` must be a `non_neg_integer()` and we even
+keep a list of `#user{}` records in a `list()` on this type. Their
+`bio` is kept as either a normal `string()` or in a `binary()` format
+for convenience.
 
-You will note that the `#user{}` notation is used to represent the record type in the `list`. This is because you can use `#recordname{}` to indicate something is a `record` of type `recordname`. Some prefer to keep the type definitions to a uniform style so they will declare an alias for the record type like so:
+You will note that the `#user{}` notation is used to represent the
+record type in the `list`. This is because you can use `#recordname{}`
+to indicate something is a `record` of type `recordname`. Some prefer
+to keep the type definitions to a uniform style so they will declare
+an alias for the record type like so:
 ```erlang
 -type Type() :: #Record{}.
 ```
@@ -262,7 +277,8 @@ or maybe...
 (type-of user #R/user)
 ```
 
-Now that we have an alias for our user record and we know what types we're using lets see how we do this in LFE:
+Now that we have an alias for our user record and we know what types
+we're using lets see how we do this in LFE:
 ```lisp
 (defrecord user (name "" (:: 'string))
                 (notes (:: tree))
