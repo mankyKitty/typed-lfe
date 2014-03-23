@@ -41,7 +41,7 @@ types to demonstrate their use in various situations.
 > discrepencies and how the sucess typing system works here? Or just
 > completely defer to the LYSE/dialyzer page? I feel like I should
 > cover it at least briefly so we know what to avoid in our LFE types
-> as well. Because they'll look different... 
+> as well. Because they'll look different...
 
 ### Types of Types
 
@@ -59,12 +59,12 @@ itself. For example:
 Below is a table of the built-in Erlang types, and their LFE
 counterparts. Note that somethings become reserved words inside of a
 type definition because of the availability of specific types, such as
-process ids, ports, or references. 
+process ids, ports, or references.
 
 | Erlang Term | LFE Term | Description |
 |-------------|----------|-------------|
 | `any()` | `'any` | Any Erlang term |
-| `none()` | `'nil` or `'none` | Special Dialyzer term for when no term should match. According to LYSE it is "synonymous with _this stuff won't work_.". | 
+| `none()` | `'nil` or `'none` | Special Dialyzer term for when no term should match. According to LYSE it is "synonymous with _this stuff won't work_.". |
 | `pid()` | `'pid` | A process identifier |
 | `port()` | `'port` | A port is the representation of a file description, socket, et al. In the shell they appear as #Port<0.638> |
 | `reference()` | `'ref` | Unique values returned by (make_ref) or erlang:monitor/2 |
@@ -140,6 +140,15 @@ Erlang, so lets have a look at how they are using in LFE.
 | `node()` | `'node` | An Erlang node name, which is an atom. |
 | `no_return()` | `'no_return` | Alias of `'nil`, intended to be used in the return type of functions. It is primarily designed for annotating functions that loop (hopefully) forever, thus never returning. |
 
+Defining your own _union_ type in LFE is as easy as using the pipe operator `|` at the head of a list to create the _union_ type from the elements of that list. Like so:
+```lisp
+;; This syntax is still to be decided upon as the pipe operator plays all sorts
+;; of hell with different parsers and Emacs modes and annoying things that probably
+;; won't make a lick of difference to simple it may be to implement. But making everything
+;; else work with the notation might not be worth the trouble... BUT YOU NEVER KNOW.
+(| 'int float)
+```
+
 That's a lot of types! But how do we actually __USE__ them?! Recall our quick and nasty binary tree definition from earlier `#{'|node| 'any 'any 'any}`. Now that we have some more information and saucy types, lets declare an actual type definition in our module!
 
 The syntax for a module level type definition in Erlang is:
@@ -201,8 +210,8 @@ the following:
 -type tree() :: {'node', 'nil'}
 	          | {'node', Left::tree(), Value::any(), Right::tree()}.
 ```
-			  
-Wait..Is that?! Oh no.. 
+
+Wait..Is that?! Oh no..
 
 Yes, that's right everyone!! Dialyzer and LFE support algebraic data
 types!! Happy days !
@@ -221,15 +230,49 @@ data Tree = Empty
           | Node Tree a Tree
 ```
 Yeah, yeah, it's terse and doesn't have all the _scary_
-parentheses.. Our subtrees are __named__ so NYERR!... So if we wanted
-to we could even specify a `Maybe` type of our very own:
+parentheses.. Our subtrees are __named__ so NYERR!...
+
+If we wanted to we could even specify a `Maybe` type of our very own:
 ```lisp
 (type-of maybe ('nil
                 #{'|just| 'any}))
 ```
-Okay I'll stop now...moving on!
+Okay I'll stop now.
 
+Dialyzer also supports adding types to your records, these can be either any of the _built-in_ or _union_ types or ones that you've defined yourself.
 
+The normal Erlang syntax is:
+```erlang
+-record(user, {name="" :: string(),
+     	       notes :: tree(),
+	           age  :: non_neg_integer(),
+	           friends=[] :: [#user{}]}
+			   bio :: string() | binary()).
+```
+This record is quite straight forward and represents a user that has a name stored as a `string()`, we keep some notes in a `tree()` format because why not. Their `age` must be a `non_neg_integer()` and we even keep a list of `#user{}` records in a `list()` on this type. Their `bio` is kept as either a normal `string()` or in a `binary()` format for convenience.
+
+You will note that the `#user{}` notation is used to represent the record type in the `list`. This is because you can use `#recordname{}` to indicate something is a `record` of type `recordname`. Some prefer to keep the type definitions to a uniform style so they will declare an alias for the record type like so:
+```erlang
+-type Type() :: #Record{}.
+```
+We can do this in LFE as well if you feel so inclined:
+```lisp
+;; Any thoughts on an easier way to do this?
+(type-of user (record user))
+```
+or maybe...
+```lisp
+(type-of user #R/user)
+```
+
+Now that we have an alias for our user record and we know what types we're using lets see how we do this in LFE:
+```lisp
+(defrecord user (name "" (:: 'string))
+                (notes (:: tree))
+                (age (:: 'non_neg_int))
+                (friends '() (:: #(user)))
+                (bio (:: (| 'string #B))))
+```
 
 
 ### Function Types
