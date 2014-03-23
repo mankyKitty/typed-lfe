@@ -219,7 +219,7 @@ types!! Happy days !
 How does with work in LFE? Simply provide another definition to the
 list for that data type:
 ```lisp
-(type-of tree '(#{'|node| '|nil}
+(type-of tree '(#{'|node| '|nil|}
                 #{'|node| (:: Left tree) (:: Value any) (:: Right tree)}))
 ```
 Now we have a `tree` data type that is either an empty tree or a node
