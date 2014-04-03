@@ -288,6 +288,54 @@ we're using lets see how we do this in LFE:
 ```
 
 ### Function Types
-#### Examples
+
+You're also able to provide type information for your functions as well.
+```lisp
+(deftypedfun foo (('int 'int) 'float)
+	((a b)
+		(div a b)))
+```
+This function takes two integers and returns a floating point
+value. The type signature contains the arguments to the function
+inside a list as the first element and the return value as the second
+argument.
+```lisp
+((function arg types) return type)
+```
+The default Dialyzer technique for handling a function that has
+different types for different branches of the function is to use union
+types:
+```erlang
+-spec foo(integer(), integer()) -> float() | {atom(), string()}.
+```
+So we can use the same mechanism in LFE types like so:
+```lisp
+(deftypedfun foo (('int 'int) (| 'float '(tuple 'atom 'string)))
+	((a b) (when (and (> b 0 ) (> a 0)))
+		(div a b))
+	((_ _)
+		(tuple 'error '"Arguments not greater than zero")))
+```
+The union type denotes that this function has different return types.
+
+In the future it would be fun to be able to use the following
+technique for functions that have multiple return types:
+```lisp
+(deftypedfun foo (('int 'int) -> a)
+	((a b) (-> 'float) (when (and (> a 0) (> b 0)))
+		(div a b))
+	((_ _) (-> (tuple 'atom 'string))
+		(tuple 'error '"Arguments not greater than zero.")))
+```
+My thinking is that the _->_ lists would be combined in a union
+function in the primary type signature. So you could also do something
+like this:
+```lisp
+(deftypedfun foo
+	((a b) (('int 'int) 'float) (when (and (> a 0) (> b 0)))
+		(div a b))
+	((a) ('int (('int) 'float))
+		(lambda (b) (div a b))))
+```
 ### Exporting Types
 #### Examples
